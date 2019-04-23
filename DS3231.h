@@ -19,7 +19,6 @@
  */
 
 #define I2C_ADDRESS 0b11010000
-#define _XTAL_FREQ 40000000L
 #define SW_1HZ      0
 #define SW_4K       1
 #define SW_8K       2

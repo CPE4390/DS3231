@@ -1,20 +1,10 @@
 #include <xc.h>
-#include <stdio.h>
 #include "LCD.h"
 #include "DS3231.h"
 
-#if defined __18F8722
-#pragma config OSC=HSPLL
-#pragma config WDT=OFF
-#pragma config LVP=OFF
-#pragma config XINST=OFF
-#elif defined __18F87J11
 #pragma config FOSC=HSPLL
 #pragma config WDTEN=OFF
 #pragma config XINST=OFF
-#else
-#error Invalid processor selection
-#endif
 
 void InitPins(void);
 void ConfigInterrupts(void);
@@ -33,8 +23,7 @@ void main(void) {
     LCDClear();
     InitPins();
     InitDS3231();
-    sprintf(lcd, "DS3231 Demo");
-    LCDWriteLine(lcd, 0);
+    lprintf(0, "DS3231 Demo");
     ConfigInterrupts();
     WriteClockRegister(0x0e, 0b00000100);
     WriteClockRegister(0x0f, 0b00001000);
@@ -66,11 +55,9 @@ void main(void) {
             if (dt.seconds != lastSeconds) {
                 lastSeconds = dt.seconds;
                 FormatTime(dt, lcd);
-                LCDClearLine(0);
-                LCDWriteLine(lcd, 0);
+                lprintf(0, lcd);
                 FormatDate(dt, lcd, true);
-                LCDClearLine(1);
-                LCDWriteLine(lcd, 1);
+                lprintf(1, lcd);
             }
             __delay_ms(1);
         }
@@ -101,7 +88,7 @@ void ConfigInterrupts(void) {
     INTCONbits.GIE = 1; //Turn on interrupts
 }
 
-void interrupt HighIsr(void) {
+void __interrupt(high_priority) HighIsr(void) {
     //Check the source of the interrupt
     if (INTCONbits.INT0IF == 1) {
         //Set clock
@@ -130,9 +117,7 @@ int GetValue(const char *prompt, int min, int max) {
         knob *= (max - min) + 1;
         knob /= 1024;
         knob += min;
-        sprintf(lcd, "%d", (int)knob);
-        LCDClearLine(1);
-        LCDWriteLine(lcd, 1);
+        lprintf(1, "%d", (int)knob);
         __delay_ms(100);
     }
     __delay_ms(10);
