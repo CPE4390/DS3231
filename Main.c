@@ -110,8 +110,7 @@ int GetValue(const char *prompt, int min, int max) {
     long knob;
     while (PORTBbits.RB0 == 0);
     __delay_ms(10);
-    LCDClearLine(0);
-    LCDWriteLine(prompt, 0);
+    lprintf(0, prompt);
     while (PORTBbits.RB0 == 1) {
         knob = ReadPot();
         knob *= (max - min) + 1;
